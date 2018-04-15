@@ -1,60 +1,15 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "sites_umbraco_hewa_name": {
-            "value": null
-        },
-        "serverfarms_WebAppWin_name": {
-            "value": null
-        },
-        "components_umbraco_hewa_name": {
-            "value": null
-        },
-        "alertrules_high_workload_name": {
-            "value": null
-        },
-        "components_WebAppWinHewa_name": {
-            "value": null
-        },
-        "config_web_name": {
-            "value": null
-        },
-        "activityLogAlerts_Umbraco_Scale_Alert_name": {
-            "value": null
-        },
-        "alertrules_Failure_Anomalies___umbraco_hewa_name": {
-            "value": null
-        },
-        "alertrules_Failure_Anomalies___WebAppWinHewa_name": {
-            "value": null
-        },
-        "hostNameBindings_hermann_wagner.com_name": {
-            "value": null
-        },
-        "hostNameBindings_umbraco_hewa.azurewebsites.net_name": {
-            "value": null
-        },
-        "deployments_c7993d373ca3221097d138bb7e31472cf56d8db7_name": {
-            "value": null
-        },
-        "certificates_536E2381108A82DAC7148F3A5665DF1D97E56DE1#WebAppWinHewa_WestEuropewebspace_name": {
-            "value": null
-        },
-        "certificates_7790CB0096B964277A51440B08D65D8928EDE2D2#WebAppWinHewa_WestEuropewebspace_name": {
-            "value": null
-        },
-        "certificates_536E2381108A82DAC7148F3A5665DF1D97E56DE1_WebAppWinHewa_NorthEuropewebspace_name": {
-            "value": null
-        },
-        "certificates_7790CB0096B964277A51440B08D65D8928EDE2D2_WebAppWinHewa_NorthEuropewebspace_name": {
-            "value": null
-        },
-        "activityLogAlerts_Umbraco_Scale_Alert_actionGroupId": {
-            "value": null
-        },
-        "alertrules_high_workload_resourceUri": {
-            "value": null
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hostingPlanName": {
+      "value": null
+    },
+    "administratorLogin": {
+      "value": null
+    },
+    "databaseName": {
+      "value": null
     }
+  }
 }

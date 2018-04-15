@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Artifacts",
+    "\\Templates",
+    "\\Templates\\sharepoint-three-vm",
+    "\\Templates\\WebApp"
+  ],
+  "SelectedNode": "\\Templates\\WebApp\\azuredeploy.parameters.json",
+  "PreviewInSolutionExplorer": false
+}

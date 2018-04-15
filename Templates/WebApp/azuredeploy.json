@@ -1,600 +1,400 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-        "sites_umbraco_hewa_name": {
-            "defaultValue": "umbraco-hewa",
-            "type": "String"
-        },
-        "serverfarms_WebAppWin_name": {
-            "defaultValue": "WebAppWin",
-            "type": "String"
-        },
-        "components_umbraco_hewa_name": {
-            "defaultValue": "umbraco-hewa",
-            "type": "String"
-        },
-        "alertrules_high_workload_name": {
-            "defaultValue": "high workload",
-            "type": "String"
-        },
-        "components_WebAppWinHewa_name": {
-            "defaultValue": "WebAppWinHewa",
-            "type": "String"
-        },
-        "config_web_name": {
-            "defaultValue": "web",
-            "type": "String"
-        },
-        "activityLogAlerts_Umbraco_Scale_Alert_name": {
-            "defaultValue": "Umbraco Scale Alert",
-            "type": "String"
-        },
-        "alertrules_Failure_Anomalies___umbraco_hewa_name": {
-            "defaultValue": "Failure Anomalies - umbraco-hewa",
-            "type": "String"
-        },
-        "alertrules_Failure_Anomalies___WebAppWinHewa_name": {
-            "defaultValue": "Failure Anomalies - WebAppWinHewa",
-            "type": "String"
-        },
-        "hostNameBindings_hermann_wagner.com_name": {
-            "defaultValue": "hermann-wagner.com",
-            "type": "String"
-        },
-        "hostNameBindings_umbraco_hewa.azurewebsites.net_name": {
-            "defaultValue": "umbraco-hewa.azurewebsites.net",
-            "type": "String"
-        },
-        "deployments_c7993d373ca3221097d138bb7e31472cf56d8db7_name": {
-            "defaultValue": "c7993d373ca3221097d138bb7e31472cf56d8db7",
-            "type": "String"
-        },
-        "certificates_536E2381108A82DAC7148F3A5665DF1D97E56DE1#WebAppWinHewa_WestEuropewebspace_name": {
-            "defaultValue": "536E2381108A82DAC7148F3A5665DF1D97E56DE1#WebAppWinHewa-WestEuropewebspace",
-            "type": "String"
-        },
-        "certificates_7790CB0096B964277A51440B08D65D8928EDE2D2#WebAppWinHewa_WestEuropewebspace_name": {
-            "defaultValue": "7790CB0096B964277A51440B08D65D8928EDE2D2#WebAppWinHewa-WestEuropewebspace",
-            "type": "String"
-        },
-        "certificates_536E2381108A82DAC7148F3A5665DF1D97E56DE1_WebAppWinHewa_NorthEuropewebspace_name": {
-            "defaultValue": "536E2381108A82DAC7148F3A5665DF1D97E56DE1-WebAppWinHewa-NorthEuropewebspace",
-            "type": "String"
-        },
-        "certificates_7790CB0096B964277A51440B08D65D8928EDE2D2_WebAppWinHewa_NorthEuropewebspace_name": {
-            "defaultValue": "7790CB0096B964277A51440B08D65D8928EDE2D2-WebAppWinHewa-NorthEuropewebspace",
-            "type": "String"
-        },
-        "activityLogAlerts_Umbraco_Scale_Alert_actionGroupId": {
-            "defaultValue": "/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourcegroups/default-activitylogalerts/providers/microsoft.insights/actiongroups/hermann",
-            "type": "String"
-        },
-        "alertrules_high_workload_resourceUri": {
-            "defaultValue": "/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Sql/servers/sqldbhewa/databases/hewaDb",
-            "type": "String"
-        }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hostingPlanName": {
+      "type": "string",
+      "minLength": 1
     },
-    "variables": {},
-    "resources": [
+    "skuName": {
+      "type": "string",
+      "defaultValue": "F1",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "metadata": {
+        "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
+      }
+    },
+    "skuCapacity": {
+      "type": "int",
+      "defaultValue": 1,
+      "minValue": 1,
+      "metadata": {
+        "description": "Describes plan's instance count"
+      }
+    },
+    "administratorLogin": {
+      "type": "string"
+    },
+    "administratorLoginPassword": {
+      "type": "securestring"
+    },
+    "databaseName": {
+      "type": "string"
+    },
+    "collation": {
+      "type": "string",
+      "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
+    },
+    "edition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    "maxSizeBytes": {
+      "type": "string",
+      "defaultValue": "1073741824"
+    },
+    "requestedServiceObjectiveName": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "allowedValues": [
+        "Basic",
+        "S0",
+        "S1",
+        "S2",
+        "P1",
+        "P2",
+        "P3"
+      ],
+      "metadata": {
+        "description": "Describes the performance level for Edition"
+      }
+    }
+  },
+  "variables": {
+    "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]",
+    "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('sqlserverName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "SqlServer"
+      },
+      "apiVersion": "2014-04-01-preview",
+      "properties": {
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+      },
+      "resources": [
         {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/microsoft.insights/activityLogAlerts/Umbraco Scale Alert'.",
-            "type": "microsoft.insights/activityLogAlerts",
-            "name": "[parameters('activityLogAlerts_Umbraco_Scale_Alert_name')]",
-            "apiVersion": "2017-04-01",
-            "location": "Global",
-            "tags": {},
-            "scale": null,
-            "properties": {
-                "scopes": [
-                    "/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2"
-                ],
-                "condition": {
-                    "allOf": [
-                        {
-                            "field": "category",
-                            "equals": "Autoscale"
-                        },
-                        {
-                            "field": "resourceId",
-                            "equals": "[resourceId('Microsoft.Web/sites', parameters('sites_umbraco_hewa_name'))]"
-                        }
-                    ]
-                },
-                "actions": {
-                    "actionGroups": [
-                        {
-                            "actionGroupId": "[parameters('activityLogAlerts_Umbraco_Scale_Alert_actionGroupId')]",
-                            "webhookProperties": {}
-                        }
-                    ]
-                },
-                "enabled": true,
-                "description": "Alert whenever umbraco needs to scale"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_umbraco_hewa_name'))]"
-            ]
+          "name": "[parameters('databaseName')]",
+          "type": "databases",
+          "location": "[resourceGroup().location]",
+          "tags": {
+            "displayName": "Database"
+          },
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))]"
+          ],
+          "properties": {
+            "edition": "[parameters('edition')]",
+            "collation": "[parameters('collation')]",
+            "maxSizeBytes": "[parameters('maxSizeBytes')]",
+            "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
+          }
         },
         {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/microsoft.insights/alertrules/high workload'.",
-            "type": "microsoft.insights/alertrules",
-            "name": "[parameters('alertrules_high_workload_name')]",
-            "apiVersion": "2014-04-01",
-            "location": "westeurope",
-            "tags": {
-                "hidden-link:/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Sql/servers/sqldbhewa/databases/hewaDb": "Resource"
-            },
-            "scale": null,
-            "properties": {
-                "name": "[parameters('alertrules_high_workload_name')]",
-                "description": "[parameters('alertrules_high_workload_name')]",
-                "isEnabled": false,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[parameters('alertrules_high_workload_resourceUri')]",
-                        "metricNamespace": null,
-                        "metricName": "dtu_consumption_percent"
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 75,
-                    "windowSize": "PT5M"
-                },
-                "action": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                    "sendToServiceOwners": true,
-                    "customEmails": []
-                }
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/microsoft.insights/alertrules/Failure Anomalies - WebAppWinHewa'.",
-            "type": "microsoft.insights/alertrules",
-            "name": "[parameters('alertrules_Failure_Anomalies___WebAppWinHewa_name')]",
-            "apiVersion": "2014-04-01",
-            "location": "West Europe",
-            "tags": {
-                "hidden-link:/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourcegroups/WebAppWinHewa/providers/microsoft.insights/components/WebAppWinHewa": "Resource"
-            },
-            "scale": null,
-            "properties": {
-                "name": "[parameters('alertrules_Failure_Anomalies___WebAppWinHewa_name')]",
-                "description": "",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('microsoft.insights/components', parameters('components_WebAppWinHewa_name'))]",
-                        "metricNamespace": null,
-                        "metricName": "advanced::A3108E3D-5E26-44CF-B232-783F5E20EF10::ewAiAEgAeQBwAGUAcgBpAG8AbgBBAHAAcABsAGkAYwBhAHQAaQBvAG4AUwBpAGQAIgA6AG4AdQBsAGwALAAiAEgAeQBwAGUAcgBpAG8AbgBTAHUAYgBqAGUAYwB0AFMAaQBkACIAOgBuAHUAbABsACwAIgBIAHkAcABlAHIAaQBvAG4ATwBiAHMAZQByAHYAZQByAFMAaQBkACIAOgBuAHUAbABsACwAIgBDAHUAcwB0AG8AbQBlAHIAQQBjAGMAbwB1AG4AdABJAGQAIgA6ACIAMAAwADAAMAAwADAAMAAwAC0AMAAwADAAMAAtADAAMAAwADAALQAwADAAMAAwAC0AMAAwADAAMAAwADAAMAAwADAAMAAwADAAIgAsACIAQQBwAHAAbABpAGMAYQB0AGkAbwBuAE4AYQBtAGUAIgA6AG4AdQBsAGwALAAiAEEAcABwAGwAaQBjAGEAdABpAG8AbgBJAGQAIgA6AG4AdQBsAGwALAAiAFAAcgBvAGYAaQBsAGUASQBkACIAOgAwACwAIgBXAGkAbgBkAG8AdwBTAGkAegBlAEkAbgBNAGkAbgB1AHQAZQBzACIAOgA2ADAALAAiAE0AZQB0AHIAaQBjAE4AYQBtAGUAIgA6ACIAIgAsACIAVABoAHIAZQBzAGgAbwBsAGQAIgA6ADIALAAiAEEAbABlAHIAdABUAGUAbQBwAGwAYQB0AGUASQBkACIAOgAiACIALAAiAFIAdQBsAGUASQBkACIAOgAiACIALAAiAFIAdQBsAGUATgBhAG0AZQAiADoAIgAiACwAIgBSAHUAbABlAEQAZQBzAGMAcgBpAHAAdABpAG8AbgAiADoAIgAiACwAIgBSAGUAcwBvAHUAcgBjAGUASQBkACIAOgBuAHUAbABsACwAIgBTAHUAYgBzAGMAcgBpAHAAdABpAG8AbgBJAGQAIgA6AG4AdQBsAGwALAAiAEEAZwBnAHIAZQBnAGEAdABlAEYAdQBuAGMAdABpAG8AbgAiADoAIgAiACwAIgBDAG8AbQBwAGEAcgBpAHMAbwBuAE8AcABlAHIAYQB0AG8AcgAiADoAIgB7AFwAIgBCAGEAcwBlAGwAaQBuAGUAVABpAG0AZQBzAHAAYQBuAFwAIgA6AFwAIgAwADAAOgA0ADAAOgAwADAAXAAiACwAXAAiAEkAbgBzAGkAZwBoAHQAcwBTAGUAcgB2AGkAYwBlAEwAYQBnAFwAIgA6AFwAIgAwADAAOgAwADAAOgAwADAAXAAiACwAXAAiAEIAdQBmAGYAZQByAFQAaQBtAGUAXAAiADoAXAAiADAAMAA6ADAAMQA6ADAAMABcACIALABcACIAQgBsAG8AYgBTAHQAbwByAGEAZwBlAEwAbwBnAGcAaQBuAGcARQBuAGEAYgBsAGUAZABcACIAOgBmAGEAbABzAGUALABcACIAVQBzAGUAcgBTAHUAcABwAHIAZQBzAHMAaQBvAG4AcwBcACIAOgBuAHUAbABsACwAXAAiAFAAcgBvAGYAaQBsAGUASQBkAFwAIgA6ADAALABcACIARQBtAGEAaQBsAFQAeQBwAGUAXAAiADoAMQAsAFwAIgBSAGQAZABGAGEAaQBsAHUAcgBlAHMAUwBwAGkAawBlAFQAaAByAGUAcwBoAG8AbABkAFwAIgA6ADMALABcACIAUgBhAHcAUAByAG8AYQBjAHQAaQB2AGUAUgB1AGwAZQBDAG8AbgBmAGkAZwBcACIAOgBuAHUAbABsAH0AIgAsACIARQBuAGEAYgBsAGUAUwBlAG4AZABFAG0AYQBpAGwAVABvAEMAdQBzAHQAbwBtACIAOgBmAGEAbABzAGUALAAiAEMAdQBzAHQAbwBtAEUAbQBhAGkAbABzAEUAbgBjAG8AZABlAGQAIgA6ACIAIgAsACIARQBuAGEAYgBsAGUAUwBlAG4AZABFAG0AYQBpAGwAVABvAE8AdwBuAGUAcgBzACIAOgBmAGEAbABzAGUAfQA="
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 0,
-                    "windowSize": "PT1H"
-                },
-                "action": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                    "sendToServiceOwners": true,
-                    "customEmails": [
-                        "hewagner@microsoft.com"
-                    ]
-                }
-            },
-            "dependsOn": [
-                "[resourceId('microsoft.insights/components', parameters('components_WebAppWinHewa_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/microsoft.insights/alertrules/Failure Anomalies - umbraco-hewa'.",
-            "type": "microsoft.insights/alertrules",
-            "name": "[parameters('alertrules_Failure_Anomalies___umbraco_hewa_name')]",
-            "apiVersion": "2014-04-01",
-            "location": "West Europe",
-            "tags": {
-                "hidden-link:/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourcegroups/WebAppWinHewa/providers/microsoft.insights/components/umbraco-hewa": "Resource"
-            },
-            "scale": null,
-            "properties": {
-                "name": "[parameters('alertrules_Failure_Anomalies___umbraco_hewa_name')]",
-                "description": "",
-                "isEnabled": true,
-                "condition": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
-                    "dataSource": {
-                        "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
-                        "resourceUri": "[resourceId('microsoft.insights/components', parameters('components_umbraco_hewa_name'))]",
-                        "metricNamespace": null,
-                        "metricName": "advanced::A3108E3D-5E26-44CF-B232-783F5E20EF10::ewAiAEgAeQBwAGUAcgBpAG8AbgBBAHAAcABsAGkAYwBhAHQAaQBvAG4AUwBpAGQAIgA6AG4AdQBsAGwALAAiAEgAeQBwAGUAcgBpAG8AbgBTAHUAYgBqAGUAYwB0AFMAaQBkACIAOgBuAHUAbABsACwAIgBIAHkAcABlAHIAaQBvAG4ATwBiAHMAZQByAHYAZQByAFMAaQBkACIAOgBuAHUAbABsACwAIgBDAHUAcwB0AG8AbQBlAHIAQQBjAGMAbwB1AG4AdABJAGQAIgA6ACIAMAAwADAAMAAwADAAMAAwAC0AMAAwADAAMAAtADAAMAAwADAALQAwADAAMAAwAC0AMAAwADAAMAAwADAAMAAwADAAMAAwADAAIgAsACIAQQBwAHAAbABpAGMAYQB0AGkAbwBuAE4AYQBtAGUAIgA6AG4AdQBsAGwALAAiAEEAcABwAGwAaQBjAGEAdABpAG8AbgBJAGQAIgA6AG4AdQBsAGwALAAiAFAAcgBvAGYAaQBsAGUASQBkACIAOgAwACwAIgBXAGkAbgBkAG8AdwBTAGkAegBlAEkAbgBNAGkAbgB1AHQAZQBzACIAOgA2ADAALAAiAE0AZQB0AHIAaQBjAE4AYQBtAGUAIgA6ACIAIgAsACIAVABoAHIAZQBzAGgAbwBsAGQAIgA6ADIALgAwACwAIgBBAGwAZQByAHQAVABlAG0AcABsAGEAdABlAEkAZAAiADoAIgAiACwAIgBSAHUAbABlAEkAZAAiADoAIgAiACwAIgBSAHUAbABlAE4AYQBtAGUAIgA6ACIAIgAsACIAUgB1AGwAZQBEAGUAcwBjAHIAaQBwAHQAaQBvAG4AIgA6ACIAIgAsACIAUgBlAHMAbwB1AHIAYwBlAEkAZAAiADoAbgB1AGwAbAAsACIAUwB1AGIAcwBjAHIAaQBwAHQAaQBvAG4ASQBkACIAOgBuAHUAbABsACwAIgBBAGcAZwByAGUAZwBhAHQAZQBGAHUAbgBjAHQAaQBvAG4AIgA6ACIAIgAsACIAQwBvAG0AcABhAHIAaQBzAG8AbgBPAHAAZQByAGEAdABvAHIAIgA6ACIAewBcACIAQgBhAHMAZQBsAGkAbgBlAFQAaQBtAGUAcwBwAGEAbgBcACIAOgBcACIAMAAwADoANAAwADoAMAAwAFwAIgAsAFwAIgBJAG4AcwBpAGcAaAB0AHMAUwBlAHIAdgBpAGMAZQBMAGEAZwBcACIAOgBcACIAMAAwADoAMAAwADoAMAAwAFwAIgAsAFwAIgBCAHUAZgBmAGUAcgBUAGkAbQBlAFwAIgA6AFwAIgAwADAAOgAwADEAOgAwADAAXAAiACwAXAAiAEIAbABvAGIAUwB0AG8AcgBhAGcAZQBMAG8AZwBnAGkAbgBnAEUAbgBhAGIAbABlAGQAXAAiADoAZgBhAGwAcwBlACwAXAAiAFUAcwBlAHIAUwB1AHAAcAByAGUAcwBzAGkAbwBuAHMAXAAiADoAbgB1AGwAbAAsAFwAIgBQAHIAbwBmAGkAbABlAEkAZABcACIAOgAwACwAXAAiAEUAbQBhAGkAbABUAHkAcABlAFwAIgA6ADAALABcACIAUgBkAGQARgBhAGkAbAB1AHIAZQBzAFMAcABpAGsAZQBUAGgAcgBlAHMAaABvAGwAZABcACIAOgAzAC4AMAAsAFwAIgBSAGEAdwBQAHIAbwBhAGMAdABpAHYAZQBSAHUAbABlAEMAbwBuAGYAaQBnAFwAIgA6AG4AdQBsAGwAfQAiACwAIgBFAG4AYQBiAGwAZQBTAGUAbgBkAEUAbQBhAGkAbABUAG8AQwB1AHMAdABvAG0AIgA6AGYAYQBsAHMAZQAsACIAQwB1AHMAdABvAG0ARQBtAGEAaQBsAHMARQBuAGMAbwBkAGUAZAAiADoAIgAiACwAIgBFAG4AYQBiAGwAZQBTAGUAbgBkAEUAbQBhAGkAbABUAG8ATwB3AG4AZQByAHMAIgA6AGYAYQBsAHMAZQB9AA=="
-                    },
-                    "operator": "GreaterThan",
-                    "threshold": 2,
-                    "windowSize": "PT1H"
-                },
-                "action": {
-                    "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
-                    "sendToServiceOwners": true,
-                    "customEmails": []
-                }
-            },
-            "dependsOn": [
-                "[resourceId('microsoft.insights/components', parameters('components_umbraco_hewa_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/microsoft.insights/components/WebAppWinHewa'.",
-            "type": "microsoft.insights/components",
-            "kind": "web",
-            "name": "[parameters('components_WebAppWinHewa_name')]",
-            "apiVersion": "2015-05-01",
-            "location": "westeurope",
-            "tags": {
-                "hidden-link:/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/sites/WebAppWinHewa": "Resource"
-            },
-            "scale": null,
-            "properties": {
-                "Application_Type": "web",
-                "Flow_Type": null,
-                "Request_Source": "IbizaWebAppExtensionCreate",
-                "HockeyAppId": null,
-                "SamplingPercentage": null
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/microsoft.insights/components/umbraco-hewa'.",
-            "type": "microsoft.insights/components",
-            "kind": "web",
-            "name": "[parameters('components_umbraco_hewa_name')]",
-            "apiVersion": "2015-05-01",
-            "location": "westeurope",
-            "tags": {
-                "hidden-link:/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/sites/umbraco-hewa": "Resource"
-            },
-            "scale": null,
-            "properties": {
-                "Application_Type": "web",
-                "Flow_Type": null,
-                "Request_Source": "IbizaWebAppExtensionCreate",
-                "HockeyAppId": null,
-                "SamplingPercentage": null
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/certificates/536E2381108A82DAC7148F3A5665DF1D97E56DE1-WebAppWinHewa-NorthEuropewebspace'.",
-            "type": "Microsoft.Web/certificates",
-            "name": "[parameters('certificates_536E2381108A82DAC7148F3A5665DF1D97E56DE1_WebAppWinHewa_NorthEuropewebspace_name')]",
-            "apiVersion": "2016-03-01",
-            "location": "North Europe",
-            "scale": null,
-            "properties": {
-                "hostNames": [
-                    "hermann-wagner.com"
-                ],
-                "pfxBlob": null,
-                "password": null,
-                "cerBlob": null,
-                "keyVaultId": "",
-                "keyVaultSecretName": "",
-                "serverFarmId": null
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/certificates/7790CB0096B964277A51440B08D65D8928EDE2D2-WebAppWinHewa-NorthEuropewebspace'.",
-            "type": "Microsoft.Web/certificates",
-            "name": "[parameters('certificates_7790CB0096B964277A51440B08D65D8928EDE2D2_WebAppWinHewa_NorthEuropewebspace_name')]",
-            "apiVersion": "2016-03-01",
-            "location": "North Europe",
-            "scale": null,
-            "properties": {
-                "hostNames": [
-                    "azurewebsites.net"
-                ],
-                "pfxBlob": null,
-                "password": null,
-                "cerBlob": null,
-                "keyVaultId": "",
-                "keyVaultSecretName": "",
-                "serverFarmId": null
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/certificates/536E2381108A82DAC7148F3A5665DF1D97E56DE1#WebAppWinHewa-WestEuropewebspace'.",
-            "type": "Microsoft.Web/certificates",
-            "name": "[parameters('certificates_536E2381108A82DAC7148F3A5665DF1D97E56DE1#WebAppWinHewa_WestEuropewebspace_name')]",
-            "apiVersion": "2016-03-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {
-                "hostNames": [
-                    "hermann-wagner.com"
-                ],
-                "pfxBlob": null,
-                "password": null,
-                "cerBlob": null,
-                "serverFarmId": null
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/certificates/7790CB0096B964277A51440B08D65D8928EDE2D2#WebAppWinHewa-WestEuropewebspace'.",
-            "type": "Microsoft.Web/certificates",
-            "name": "[parameters('certificates_7790CB0096B964277A51440B08D65D8928EDE2D2#WebAppWinHewa_WestEuropewebspace_name')]",
-            "apiVersion": "2016-03-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {
-                "hostNames": [
-                    "azurewebsites.net"
-                ],
-                "pfxBlob": null,
-                "password": null,
-                "cerBlob": null,
-                "serverFarmId": null
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/serverfarms/WebAppWin'.",
-            "type": "Microsoft.Web/serverfarms",
-            "sku": {
-                "name": "S1",
-                "tier": "Standard",
-                "size": "S1",
-                "family": "S",
-                "capacity": 1
-            },
-            "kind": "app",
-            "name": "[parameters('serverfarms_WebAppWin_name')]",
-            "apiVersion": "2016-09-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {
-                "name": "[parameters('serverfarms_WebAppWin_name')]",
-                "workerTierName": null,
-                "adminSiteName": null,
-                "hostingEnvironmentProfile": null,
-                "perSiteScaling": false,
-                "reserved": false,
-                "targetWorkerCount": 0,
-                "targetWorkerSizeId": 0
-            },
-            "dependsOn": []
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/sites/umbraco-hewa'.",
-            "type": "Microsoft.Web/sites",
-            "kind": "app",
-            "name": "[parameters('sites_umbraco_hewa_name')]",
-            "apiVersion": "2016-08-01",
-            "location": "West Europe",
-            "tags": {
-                "hidden-related:/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourcegroups/WebAppWinHewa/providers/Microsoft.Web/serverfarms/WebAppWin": "empty"
-            },
-            "scale": null,
-            "properties": {
-                "enabled": true,
-                "hostNameSslStates": [
-                    {
-                        "name": "hermann-wagner.com",
-                        "sslState": "SniEnabled",
-                        "virtualIP": null,
-                        "thumbprint": "536E2381108A82DAC7148F3A5665DF1D97E56DE1",
-                        "toUpdate": null,
-                        "hostType": "Standard"
-                    },
-                    {
-                        "name": "[concat(parameters('sites_umbraco_hewa_name'),'.azurewebsites.net')]",
-                        "sslState": "Disabled",
-                        "virtualIP": null,
-                        "thumbprint": null,
-                        "toUpdate": null,
-                        "hostType": "Standard"
-                    },
-                    {
-                        "name": "[concat(parameters('sites_umbraco_hewa_name'),'.scm.azurewebsites.net')]",
-                        "sslState": "Disabled",
-                        "virtualIP": null,
-                        "thumbprint": null,
-                        "toUpdate": null,
-                        "hostType": "Repository"
-                    }
-                ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_WebAppWin_name'))]",
-                "reserved": false,
-                "siteConfig": null,
-                "scmSiteAlsoStopped": false,
-                "hostingEnvironmentProfile": null,
-                "clientAffinityEnabled": true,
-                "clientCertEnabled": false,
-                "hostNamesDisabled": false,
-                "containerSize": 0,
-                "dailyMemoryTimeQuota": 0,
-                "cloningInfo": null
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_WebAppWin_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/sites/umbraco-hewa/config/web'.",
-            "type": "Microsoft.Web/sites/config",
-            "name": "[concat(parameters('sites_umbraco_hewa_name'), '/', parameters('config_web_name'))]",
-            "apiVersion": "2016-08-01",
-            "location": "West Europe",
-            "tags": {
-                "hidden-related:/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourcegroups/WebAppWinHewa/providers/Microsoft.Web/serverfarms/WebAppWin": "empty"
-            },
-            "scale": null,
-            "properties": {
-                "numberOfWorkers": 1,
-                "defaultDocuments": [
-                    "Default.htm",
-                    "Default.html",
-                    "Default.asp",
-                    "index.htm",
-                    "index.html",
-                    "iisstart.htm",
-                    "default.aspx",
-                    "index.php",
-                    "hostingstart.html"
-                ],
-                "netFrameworkVersion": "v4.0",
-                "phpVersion": "5.6",
-                "pythonVersion": "",
-                "nodeVersion": "",
-                "linuxFxVersion": "",
-                "requestTracingEnabled": true,
-                "requestTracingExpirationTime": "9999-12-31T23:59:00Z",
-                "remoteDebuggingEnabled": false,
-                "remoteDebuggingVersion": "VS2012",
-                "httpLoggingEnabled": true,
-                "logsDirectorySizeLimit": 35,
-                "detailedErrorLoggingEnabled": true,
-                "publishingUsername": "$umbraco-hewa",
-                "publishingPassword": null,
-                "appSettings": null,
-                "metadata": null,
-                "connectionStrings": null,
-                "machineKey": null,
-                "handlerMappings": null,
-                "documentRoot": null,
-                "scmType": "None",
-                "use32BitWorkerProcess": true,
-                "webSocketsEnabled": false,
-                "alwaysOn": true,
-                "javaVersion": null,
-                "javaContainer": null,
-                "javaContainerVersion": null,
-                "appCommandLine": "",
-                "managedPipelineMode": "Integrated",
-                "virtualApplications": [
-                    {
-                        "virtualPath": "/",
-                        "physicalPath": "site\\wwwroot",
-                        "preloadEnabled": true,
-                        "virtualDirectories": null
-                    }
-                ],
-                "winAuthAdminState": 0,
-                "winAuthTenantState": 0,
-                "customAppPoolIdentityAdminState": false,
-                "customAppPoolIdentityTenantState": false,
-                "runtimeADUser": null,
-                "runtimeADUserPassword": null,
-                "loadBalancing": "LeastRequests",
-                "routingRules": [],
-                "experiments": {
-                    "rampUpRules": []
-                },
-                "limits": null,
-                "autoHealEnabled": false,
-                "autoHealRules": {
-                    "triggers": null,
-                    "actions": null
-                },
-                "tracingOptions": null,
-                "vnetName": "",
-                "siteAuthEnabled": false,
-                "siteAuthSettings": {
-                    "enabled": null,
-                    "unauthenticatedClientAction": null,
-                    "tokenStoreEnabled": null,
-                    "allowedExternalRedirectUrls": null,
-                    "defaultProvider": null,
-                    "clientId": null,
-                    "clientSecret": null,
-                    "issuer": null,
-                    "allowedAudiences": null,
-                    "additionalLoginParams": null,
-                    "isAadAutoProvisioned": false,
-                    "googleClientId": null,
-                    "googleClientSecret": null,
-                    "googleOAuthScopes": null,
-                    "facebookAppId": null,
-                    "facebookAppSecret": null,
-                    "facebookOAuthScopes": null,
-                    "twitterConsumerKey": null,
-                    "twitterConsumerSecret": null,
-                    "microsoftAccountClientId": null,
-                    "microsoftAccountClientSecret": null,
-                    "microsoftAccountOAuthScopes": null
-                },
-                "cors": null,
-                "push": null,
-                "apiDefinition": null,
-                "autoSwapSlotName": null,
-                "localMySqlEnabled": false,
-                "managedServiceIdentityId": null,
-                "ipSecurityRestrictions": null,
-                "http20Enabled": true,
-                "minTlsVersion": "1.0"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_umbraco_hewa_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourcegroups/WebAppWinHewa/providers/Microsoft.Web/sites/umbraco-hewa/deployments/c7993d373ca3221097d138bb7e31472cf56d8db7'.",
-            "type": "Microsoft.Web/sites/deployments",
-            "name": "[concat(parameters('sites_umbraco_hewa_name'), '/', parameters('deployments_c7993d373ca3221097d138bb7e31472cf56d8db7_name'))]",
-            "apiVersion": "2016-08-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {
-                "id": "[parameters('deployments_c7993d373ca3221097d138bb7e31472cf56d8db7_name')]",
-                "status": 4,
-                "author_email": "warren@umbraco.com",
-                "author": "Warren Buckley",
-                "deployer": "GitHub",
-                "message": "Umbraco 7.7.1 Release from Build Output\n",
-                "start_time": "2017-10-09T11:04:01.2961083Z",
-                "end_time": "2017-10-09T11:04:30.8192642Z",
-                "active": true
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_umbraco_hewa_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/sites/umbraco-hewa/hostNameBindings/umbraco-hewa.azurewebsites.net'.",
-            "type": "Microsoft.Web/sites/hostNameBindings",
-            "name": "[concat(parameters('sites_umbraco_hewa_name'), '/', parameters('hostNameBindings_umbraco_hewa.azurewebsites.net_name'))]",
-            "apiVersion": "2016-08-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {
-                "siteName": "umbraco-hewa",
-                "domainId": null,
-                "hostNameType": "Verified"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_umbraco_hewa_name'))]"
-            ]
-        },
-        {
-            "comments": "Generalized from resource: '/subscriptions/23face33-28f0-4c55-80fd-8f302e3757b2/resourceGroups/WebAppWinHewa/providers/Microsoft.Web/sites/umbraco-hewa/hostNameBindings/hermann-wagner.com'.",
-            "type": "Microsoft.Web/sites/hostNameBindings",
-            "name": "[concat(parameters('sites_umbraco_hewa_name'), '/', parameters('hostNameBindings_hermann_wagner.com_name'))]",
-            "apiVersion": "2016-08-01",
-            "location": "West Europe",
-            "scale": null,
-            "properties": {
-                "siteName": "umbraco-hewa",
-                "domainId": null,
-                "hostNameType": "Verified",
-                "sslState": "SniEnabled",
-                "thumbprint": "536E2381108A82DAC7148F3A5665DF1D97E56DE1"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_umbraco_hewa_name'))]"
-            ]
+          "type": "firewallrules",
+          "apiVersion": "2014-04-01-preview",
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))]"
+          ],
+          "location": "[resourceGroup().location]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          }
         }
-    ]
+      ]
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[parameters('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "HostingPlan"
+      },
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "capacity": "[parameters('skuCapacity')]"
+      },
+      "properties": {
+        "name": "[parameters('hostingPlanName')]"
+      }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('webSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty",
+        "displayName": "Website"
+      },
+      "properties": {
+        "name": "[variables('webSiteName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "type": "config",
+          "name": "connectionstrings",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites/', variables('webSiteName'))]"
+          ],
+          "properties": {
+            "DefaultConnection": {
+              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('sqlserverName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "type": "SQLServer"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat(parameters('hostingPlanName'), '-', resourceGroup().name)]",
+      "type": "Microsoft.Insights/autoscalesettings",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "AutoScaleSettings"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+      ],
+      "properties": {
+        "profiles": [
+          {
+            "name": "Default",
+            "capacity": {
+              "minimum": 1,
+              "maximum": 2,
+              "default": 1
+            },
+            "rules": [
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT10M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 80.0
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT10M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT1H",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 60.0
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT1H"
+                }
+              }
+            ]
+          }
+        ],
+        "enabled": false,
+        "name": "[concat(parameters('hostingPlanName'), '-', resourceGroup().name)]",
+        "targetResourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+      }
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('ServerErrors ', variables('webSiteName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/', variables('webSiteName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]": "Resource",
+        "displayName": "ServerErrorsAlertRule"
+      },
+      "properties": {
+        "name": "[concat('ServerErrors ', variables('webSiteName'))]",
+        "description": "[concat(variables('webSiteName'), ' has some server errors, status code 5xx.')]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]",
+            "metricName": "Http5xx"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0.0,
+          "windowSize": "PT5M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": []
+        }
+      }
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('ForbiddenRequests ', variables('webSiteName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/', variables('webSiteName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]": "Resource",
+        "displayName": "ForbiddenRequestsAlertRule"
+      },
+      "properties": {
+        "name": "[concat('ForbiddenRequests ', variables('webSiteName'))]",
+        "description": "[concat(variables('webSiteName'), ' has some requests that are forbidden, status code 403.')]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]",
+            "metricName": "Http403"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0,
+          "windowSize": "PT5M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": []
+        }
+      }
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('CPUHigh ', parameters('hostingPlanName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "CPUHighAlertRule"
+      },
+      "properties": {
+        "name": "[concat('CPUHigh ', parameters('hostingPlanName'))]",
+        "description": "[concat('The average CPU is high across all the instances of ', parameters('hostingPlanName'))]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+            "metricName": "CpuPercentage"
+          },
+          "operator": "GreaterThan",
+          "threshold": 90,
+          "windowSize": "PT15M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": []
+        }
+      }
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[concat('LongHttpQueue ', parameters('hostingPlanName'))]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "Resource",
+        "displayName": "AutoScaleSettings"
+      },
+      "properties": {
+        "name": "[concat('LongHttpQueue ', parameters('hostingPlanName'))]",
+        "description": "[concat('The HTTP queue for the instances of ', parameters('hostingPlanName'), ' has a large number of pending requests.')]",
+        "isEnabled": false,
+        "condition": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource": {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[concat(resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]",
+            "metricName": "HttpQueueLength"
+          },
+          "operator": "GreaterThan",
+          "threshold": 100.0,
+          "windowSize": "PT5M"
+        },
+        "action": {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails": []
+        }
+      }
+    },
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[variables('webSiteName')]",
+      "type": "Microsoft.Insights/components",
+      "location": "East US",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites/', variables('webSiteName'))]"
+      ],
+      "tags": {
+        "[concat('hidden-link:', resourceGroup().id, '/providers/Microsoft.Web/sites/', variables('webSiteName'))]": "Resource",
+        "displayName": "AppInsightsComponent"
+      },
+      "properties": {
+        "ApplicationId": "[variables('webSiteName')]"
+      }
+    }
+  ]
 }
